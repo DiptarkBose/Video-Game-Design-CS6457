@@ -75,6 +75,13 @@ public class YBotSimpleControlScript : MonoBehaviour
         float v = Input.GetAxisRaw("Vertical");	// setup v variables as our vertical input axis
 
 
+        //enforce circular joystick mapping which should coincide with circular blendtree positions
+        Vector2 vec = Vector2.ClampMagnitude(new Vector2(h, v), 1.0f);
+
+        h = vec.x;
+        v = vec.y;
+
+
         //BEGIN ANALOG ON KEYBOARD DEMO CODE
         if (Input.GetKey(KeyCode.Q))
             h = -0.5f;
