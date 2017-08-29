@@ -123,8 +123,8 @@ public class YBotSimpleControlScript : MonoBehaviour
         anim.SetFloat("vely", filteredForwardInput); // set our animator's float parameter 'Direction' equal to the horizontal input axis		
 
 
-        if (Input.GetButtonDown("Fire1")) //normally left-ctrl on keyboard
-            anim.SetTrigger("throw"); 
+        //if (Input.GetButtonDown("Fire1")) //normally left-ctrl on keyboard
+        //    anim.SetTrigger("throw"); 
     }
 
 
