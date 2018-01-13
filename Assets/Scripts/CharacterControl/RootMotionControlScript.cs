@@ -63,6 +63,15 @@ public class RootMotionControlScript : MonoBehaviour
 
     void FixedUpdate()
     {
+
+        float inputForward=0f;
+        float inputTurn=0f;
+
+        if (cinput.enabled)
+        {
+            inputForward = cinput.Forward;
+            inputTurn = cinput.Turn;
+        }
 	
         //onCollisionStay() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
@@ -71,8 +80,8 @@ public class RootMotionControlScript : MonoBehaviour
             isGrounded = true;
                                                     
        
-        anim.SetFloat("velx", cinput.Turn);	
-        anim.SetFloat("vely", cinput.Forward);
+        anim.SetFloat("velx", inputTurn);	
+        anim.SetFloat("vely", inputForward);
         anim.SetBool("isFalling", !isGrounded);
 
 
