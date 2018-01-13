@@ -1,0 +1,118 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[RequireComponent(typeof(Animator), typeof(Rigidbody), typeof(CapsuleCollider))]
+[RequireComponent(typeof(CharacterInputController))]
+public class MinionBasicControlScript : MonoBehaviour
+{
+    private Animator anim;	
+    private Rigidbody rbody;
+    private CharacterInputController cinput;
+     
+    public float forwardMaxSpeed = 1f;
+    public float turnMaxSpeed = 1f;
+      
+    //Useful if you implement jump in the future...
+    public float jumpableGroundNormalMaxAngle = 45f;
+    public bool closeToJumpableGround;
+
+    public bool isGrounded;
+
+
+
+    void Awake()
+    {
+
+        anim = GetComponent<Animator>();
+
+        if (anim == null)
+            Debug.Log("Animator could not be found");
+
+        rbody = GetComponent<Rigidbody>();
+
+        if (rbody == null)
+            Debug.Log("Rigid body could not be found");
+
+        cinput = GetComponent<CharacterInputController>();
+
+        if (cinput == null)
+            Debug.Log("CharacterInputController could not be found");
+
+    }
+
+
+    // Use this for initialization
+    void Start()
+    {
+        isGrounded = false;
+
+        anim.applyRootMotion = false;
+
+        //never sleep so that OnCollisionStay() always reports for ground check
+        rbody.sleepThreshold = 0f;
+    }
+
+
+
+
+    void FixedUpdate()
+    {
+      
+        //onCollisionStay() doesn't always work for checking if the character is grounded from a playability perspective
+        //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
+        //Therefore, an additional raycast approach is used to check for close ground
+        if (CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.85f, 0f, out closeToJumpableGround))
+            isGrounded = true;
+
+        //this.transform.Translate(Vector3.forward * cinput.Forward * Time.deltaTime * forwardMaxSpeed);
+        //this.transform.Rotate(Vector3.up, cinput.Turn * Time.deltaTime * turnMaxSpeed);
+
+        //It's supposed to be safe to not scale with Time.deltaTime (e.g. framerate correction) within FixedUpdate()
+        //If you want to make that optimization, you can precompute your velocity-based translation using Time.fixedDeltaTime
+        //We use rbody.MovePosition() as it's the most efficient and safest way to directly control position in Unity's Physics
+        rbody.MovePosition(rbody.position +  this.transform.forward * cinput.Forward * Time.deltaTime * forwardMaxSpeed);
+        //Most characters use capsule colliders constrained to not rotate around X or Z axis
+        //However, it's also good to freeze rotation around the Y axis too. This is because friction against walls/corners
+        //can turn the character. This errant turn is disorienting to players. 
+        //Luckily, we can break the frozen Y axis constraint with rbody.MoveRotation()
+        //BTW, quaternions multiplied has the effect of adding the rotations together
+        rbody.MoveRotation(rbody.rotation * Quaternion.AngleAxis(cinput.Turn * Time.deltaTime * turnMaxSpeed, Vector3.up));
+
+
+        anim.SetFloat("velx", cinput.Turn); 
+        anim.SetFloat("vely", cinput.Forward);
+        anim.SetBool("isFalling", !isGrounded);
+
+        //clear for next OnCollisionStay() callback      
+        isGrounded = false;
+
+    }
+
+
+
+
+    //This is a physics callback
+    void OnCollisionStay(Collision collision)
+    {
+        isGrounded = true;
+
+    }
+
+    //This is a physics callback
+    void OnCollisionEnter(Collision collision)
+    {
+
+        if (collision.transform.gameObject.tag == "ground")
+        {   
+            EventManager.TriggerEvent<MinionLandsEvent, Vector3, float>(collision.contacts[0].point, collision.impulse.magnitude);          
+        }
+						
+    }
+
+
+
+
+
+
+}
