@@ -103,23 +103,31 @@ public class MinionRootMotionControlScript : MonoBehaviour
 
     void OnAnimatorMove()
     {
+
+        Vector3 newRootPosition;
+        Quaternion newRootRotation;
+
         if (isGrounded)
         {
-         	//use root motion as is if on the ground		
-            this.transform.position = anim.rootPosition;
-
+            //use root motion as is if on the ground        
+            newRootPosition = anim.rootPosition;
         }
         else
         {
             //Simple trick to keep model from climbing other rigidbodies that aren't the ground
-            this.transform.position = new Vector3(anim.rootPosition.x, this.transform.position.y, anim.rootPosition.z);
+            newRootPosition = new Vector3(anim.rootPosition.x, this.transform.position.y, anim.rootPosition.z);
         }
 
         //use rotational root motion as is
-        this.transform.rotation = anim.rootRotation;
+        newRootRotation = anim.rootRotation;
+
+        //TODO Here, you could scale the difference in position and rotation to make the character go faster or slower
+
+        this.transform.position = newRootPosition;
+        this.transform.rotation = newRootRotation;
+
 
         //clear IsGrounded
         isGrounded = false;
     }
-
 }
