@@ -78,6 +78,10 @@ public class BasicControlScript : MonoBehaviour
             inputForward = cinput.Forward;
             inputTurn = cinput.Turn;
         }
+        
+        //switch turn around if going backwards
+        if(inputForward < 0f)
+        inputTurn = -inputTurn;
 
         //onCollisionStay() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
