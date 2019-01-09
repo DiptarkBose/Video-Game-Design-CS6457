@@ -28,9 +28,17 @@ public class CharacterInputController : MonoBehaviour {
         get;
         private set;
     }
+
+    public bool Action
+    {
+        get;
+        private set;
+    }
+
+
         
 
-	void FixedUpdate () {
+	void Update () {
 		
         //GetAxisRaw() so we can do filtering here instead of the InputManager
         float h = Input.GetAxisRaw("Horizontal");// setup h variable as our horizontal input axis
@@ -85,6 +93,10 @@ public class CharacterInputController : MonoBehaviour {
 
         Forward = filteredForwardInput;
         Turn = filteredTurnInput;
+
+
+        //Capture "fire" button for action event
+        Action = Input.GetButtonDown("Fire1");
 
 	}
 }

@@ -24,6 +24,7 @@ public class RootMotionControlScript : MonoBehaviour
 
     public bool isGrounded;
 
+ 
 
     void Awake()
     {
@@ -62,7 +63,14 @@ public class RootMotionControlScript : MonoBehaviour
         
     void Update()
     {
-        //TODO 
+        // Event-based inputs need to be handled in Update()
+        if (cinput.enabled)
+        {
+            if(cinput.Action)
+                Debug.Log("Action pressed");
+            
+            anim.SetBool("doButtonPress", cinput.Action);
+        }
     }
 
     void FixedUpdate()
@@ -71,6 +79,10 @@ public class RootMotionControlScript : MonoBehaviour
         float inputForward=0f;
         float inputTurn=0f;
 
+        // input is polled in the Update() step, not FixedUpdate()
+        // Therefore, you should ONLY use input state that is NOT event-based in FixedUpdate()
+        // Input events should be handled in Update(), and possibly passed on to FixedUpdate() through 
+        // the state of the MonoBehavior
         if (cinput.enabled)
         {
             inputForward = cinput.Forward;
@@ -90,6 +102,9 @@ public class RootMotionControlScript : MonoBehaviour
 
 
     }
+
+
+
 
 
 
