@@ -17,8 +17,15 @@ public class MinionBasicControlScript : MonoBehaviour
     public float jumpableGroundNormalMaxAngle = 45f;
     public bool closeToJumpableGround;
 
-    public bool isGrounded;
+    private int groundContactCount = 0;
 
+    public bool IsGrounded
+    {
+        get
+        {
+            return groundContactCount > 0;
+        }
+    }
 
 
     void Awake()
@@ -45,15 +52,8 @@ public class MinionBasicControlScript : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        isGrounded = false;
-
         anim.applyRootMotion = false;
-
-        //never sleep so that OnCollisionStay() always reports for ground check
-        rbody.sleepThreshold = 0f;
     }
-
-
 
 
     void FixedUpdate()
@@ -68,11 +68,12 @@ public class MinionBasicControlScript : MonoBehaviour
             inputTurn = cinput.Turn;
         }
 
-        //onCollisionStay() doesn't always work for checking if the character is grounded from a playability perspective
+        //onCollisionXXX() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
         //Therefore, an additional raycast approach is used to check for close ground
-        if (CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.85f, 0f, out closeToJumpableGround))
-            isGrounded = true;
+
+        bool isGrounded = IsGrounded || CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.85f, 0f, out closeToJumpableGround);
+
 
         //this.transform.Translate(Vector3.forward * cinput.Forward * Time.deltaTime * forwardMaxSpeed);
         //this.transform.Rotate(Vector3.up, cinput.Turn * Time.deltaTime * turnMaxSpeed);
@@ -93,35 +94,30 @@ public class MinionBasicControlScript : MonoBehaviour
         anim.SetFloat("vely", inputForward);
         anim.SetBool("isFalling", !isGrounded);
 
-        //clear for next OnCollisionStay() callback      
-        isGrounded = false;
-
     }
 
-
-
-
-    //This is a physics callback
-    void OnCollisionStay(Collision collision)
-    {
-        isGrounded = true;
-
-    }
 
     //This is a physics callback
     void OnCollisionEnter(Collision collision)
     {
 
         if (collision.transform.gameObject.tag == "ground")
-        {   
+        {
+            ++groundContactCount;
+
             EventManager.TriggerEvent<MinionLandsEvent, Vector3, float>(collision.contacts[0].point, collision.impulse.magnitude);          
         }
 						
     }
 
 
-
-
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.transform.gameObject.tag == "ground")
+        {
+            --groundContactCount;
+        }
+    }
 
 
 }

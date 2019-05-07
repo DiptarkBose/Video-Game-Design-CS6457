@@ -22,8 +22,15 @@ public class BasicControlScript : MonoBehaviour
     public bool closeToJumpableGround;
 
 
-    public bool isGrounded;
+    private int groundContactCount = 0;
 
+    public bool IsGrounded
+    {
+        get
+        {
+            return groundContactCount > 0;
+        }
+    }
 
 
     void Awake()
@@ -58,17 +65,10 @@ public class BasicControlScript : MonoBehaviour
 
         anim.applyRootMotion = false;
 
-        isGrounded = false;
-
-        //never sleep so that OnCollisionStay() always reports for ground check
-        rbody.sleepThreshold = 0f;
     }
 
 
-
-
-
-    void FixedUpdate() {
+    void Update() {
 
         float inputForward=0f;
         float inputTurn=0f;
@@ -83,17 +83,11 @@ public class BasicControlScript : MonoBehaviour
         if(inputForward < 0f)
         inputTurn = -inputTurn;
 
-        //onCollisionStay() doesn't always work for checking if the character is grounded from a playability perspective
+        //onCollisionXXX() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
         //Therefore, an additional raycast approach is used to check for close ground
-        if (CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.1f, 1f, out closeToJumpableGround))
-            isGrounded = true;
+        bool isGrounded = IsGrounded || CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.1f, 1f, out closeToJumpableGround);
 
-        //this.transform.Translate(Vector3.forward * cinput.Forward * Time.deltaTime * forwardMaxSpeed);
-        //this.transform.Rotate(Vector3.up, cinput.Turn * Time.deltaTime * turnMaxSpeed);
-
-        //It's supposed to be safe to not scale with Time.deltaTime (e.g. framerate correction) within FixedUpdate()
-        //If you want to make that optimization, you can precompute your velocity-based translation using Time.fixedDeltaTime
         //We use rbody.MovePosition() as it's the most efficient and safest way to directly control position in Unity's Physics
         rbody.MovePosition(rbody.position +  this.transform.forward * inputForward * Time.deltaTime * forwardMaxSpeed);
         //Most characters use capsule colliders constrained to not rotate around X or Z axis
@@ -108,33 +102,31 @@ public class BasicControlScript : MonoBehaviour
         anim.SetFloat("vely", inputForward);
         anim.SetBool("isFalling", !isGrounded);
 
-       
-        //clear for next OnCollisionStay() callback
-        isGrounded = false;
-
-
     }
 
 
 
-    //This is a physics callback
-    void OnCollisionStay(Collision collision)
-    {
-        isGrounded = true;
-    }
 
     //This is a physics callback
     void OnCollisionEnter(Collision collision)
     {
 
         if (collision.transform.gameObject.tag == "ground")
-        {              
+        {
+            ++groundContactCount;
+                    
             EventManager.TriggerEvent<PlayerLandsEvent, Vector3, float>(collision.contacts[0].point, collision.impulse.magnitude);
         }
 						
     }
 
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.transform.gameObject.tag == "ground")
+        {
+            --groundContactCount;
 
-
+        }
+    }
 
 }

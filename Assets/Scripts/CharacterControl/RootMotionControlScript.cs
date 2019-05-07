@@ -22,9 +22,15 @@ public class RootMotionControlScript : MonoBehaviour
     public float jumpableGroundNormalMaxAngle = 45f;
     public bool closeToJumpableGround;
 
-    public bool isGrounded;
+    private int groundContactCount = 0;
 
- 
+    public bool IsGrounded
+    {
+        get
+        {
+            return groundContactCount > 0;
+        }
+    }
 
     void Awake()
     {
@@ -54,31 +60,20 @@ public class RootMotionControlScript : MonoBehaviour
 
         if (leftFoot == null || rightFoot == null)
             Debug.Log("One of the feet could not be found");
-
-        isGrounded = false;
-
-        //never sleep so that OnCollisionStay() always reports for ground check
-        rbody.sleepThreshold = 0f;
+            
     }
         
-    void Update()
-    {
-        // Event-based inputs need to be handled in Update()
-        if (cinput.enabled)
-        {
-            if(cinput.Action)
-                Debug.Log("Action pressed");
-            
-            anim.SetBool("doButtonPress", cinput.Action);
-        }
-    }
 
-    void FixedUpdate()
+
+
+
+
+    void Update()
     {
 
         float inputForward=0f;
         float inputTurn=0f;
-
+        bool inputAction = false;
         // input is polled in the Update() step, not FixedUpdate()
         // Therefore, you should ONLY use input state that is NOT event-based in FixedUpdate()
         // Input events should be handled in Update(), and possibly passed on to FixedUpdate() through 
@@ -87,33 +82,26 @@ public class RootMotionControlScript : MonoBehaviour
         {
             inputForward = cinput.Forward;
             inputTurn = cinput.Turn;
+            inputAction = cinput.Action;
+                
         }
-	
-        //onCollisionStay() doesn't always work for checking if the character is grounded from a playability perspective
+
+        //onCollisionXXX() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
         //Therefore, an additional raycast approach is used to check for close ground
-        if (CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.1f, 1f, out closeToJumpableGround))
-            isGrounded = true;
+        bool isGrounded = IsGrounded || CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.1f, 1f, out closeToJumpableGround);
                                                     
        
         anim.SetFloat("velx", inputTurn);	
         anim.SetFloat("vely", inputForward);
         anim.SetBool("isFalling", !isGrounded);
+        anim.SetBool("doButtonPress", inputAction);
 
-
-    }
-
-
-
-
-
-
-    //This is a physics callback
-    void OnCollisionStay(Collision collision)
-    {
-        isGrounded = true;
+        if(inputAction)
+            Debug.Log("Action pressed");
 
     }
+
 
     //This is a physics callback
     void OnCollisionEnter(Collision collision)
@@ -121,20 +109,33 @@ public class RootMotionControlScript : MonoBehaviour
 
         if (collision.transform.gameObject.tag == "ground")
         {
-      
+
+            ++groundContactCount;
+
+            // Generate an event that might play a sound, generate a particle effect, etc.
             EventManager.TriggerEvent<PlayerLandsEvent, Vector3, float>(collision.contacts[0].point, collision.impulse.magnitude);
 
         }
 						
     }
 
-   
+    private void OnCollisionExit(Collision collision)
+    {
+
+        if (collision.transform.gameObject.tag == "ground")
+        {
+            --groundContactCount;
+        }
+
+    }
 
     void OnAnimatorMove()
     {
 
         Vector3 newRootPosition;
         Quaternion newRootRotation;
+
+        bool isGrounded = IsGrounded || CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.1f, 1f, out closeToJumpableGround);
 
         if (isGrounded)
         {
@@ -155,9 +156,6 @@ public class RootMotionControlScript : MonoBehaviour
         this.transform.position = newRootPosition;
         this.transform.rotation = newRootRotation;
 
-
-        //clear IsGrounded
-        isGrounded = false;
     }
 
 }

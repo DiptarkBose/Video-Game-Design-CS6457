@@ -49,7 +49,7 @@ AnimatorController:
     m_BlendingMode: 0
     m_SyncedLayerIndex: -1
     m_DefaultWeight: 0
-    m_IKPass: 0
+    m_IKPass: 1
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
 --- !u!206 &206109945213450842
@@ -116,15 +116,15 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400004, guid: 04f4c7cb5e9914c1aaff9215d330728a, type: 3}
-    m_Threshold: 0.085714296
-    m_Position: {x: 0, y: 1}
+    m_Threshold: 0.07142858
+    m_Position: {x: -0.01, y: 0.19}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: velx
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400006, guid: 568cdc2a12387419f9e264beb3ef0265, type: 3}
-    m_Threshold: 0.17142859
+    m_Threshold: 0.14285716
     m_Position: {x: -0.7, y: 0.7}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -132,7 +132,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400004, guid: 568cdc2a12387419f9e264beb3ef0265, type: 3}
-    m_Threshold: 0.2571429
+    m_Threshold: 0.21428573
     m_Position: {x: 0.7, y: 0.7}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -140,7 +140,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 12b1c54fc38fb46b48011875bd818bd2, type: 3}
-    m_Threshold: 0.34285718
+    m_Threshold: 0.28571433
     m_Position: {x: 1, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -148,9 +148,17 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 22fcdce2a35b54756a55ecd3dcbfbe1e, type: 3}
-    m_Threshold: 0.42857146
+    m_Threshold: 0.35714287
     m_Position: {x: -1, y: 0}
     m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: velx
+    m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 7400004, guid: 04f4c7cb5e9914c1aaff9215d330728a, type: 3}
+    m_Threshold: 0.42857146
+    m_Position: {x: -0.01, y: 1}
+    m_TimeScale: 1.4
     m_CycleOffset: 0
     m_DirectBlendParameter: velx
     m_Mirror: 0
