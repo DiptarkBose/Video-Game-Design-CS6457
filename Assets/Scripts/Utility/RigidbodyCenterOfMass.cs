@@ -4,18 +4,20 @@ using UnityEngine;
 
 namespace CS4455.Utility {
 
+
     [RequireComponent(typeof(Rigidbody))]
     public class RigidbodyCenterOfMass : MonoBehaviour {
 
+		[Tooltip("An optional marker GameObject used to identify where the center of mass is. If assigned non-null, it will be used to determine the centerOfMass")]
+		public GameObject centerOfMassMarker = null;
 
-        [Tooltip("An optional marker GameObject used to identify where the center of mass is. If assigned non-null, it will be used to determine the centerOfMass")]
-        public GameObject centerOfMassMarker = null;
+		public Vector3 centerOfMass { get {return m_centerOfMass; } set { m_centerOfMass = value; } }
 
-        [Tooltip("The relative position defining the center of mass that will be used in physics simulation. Will be overridden by centerOfMassMarker if non-null.")]
-        public Vector3 centerOfMass = Vector3.zero;
+        [SerializeField]
+        public Vector3 m_centerOfMass = Vector3.zero;
 
-        [Tooltip("Whether the centerOfMass is re-evaluated every FixedUpdate()")]
-        public bool continuousUpdating = false;
+		[Tooltip("Whether the centerOfMass is re-evaluated every Update()")]
+		public bool continuousUpdating = false;
 
         protected Rigidbody rb;
 
@@ -30,7 +32,7 @@ namespace CS4455.Utility {
            
     	}
 
-        void FixedUpdate() {
+        void Update() {
 
             if (continuousUpdating)
                 AssignCenterOfMass();
@@ -47,7 +49,18 @@ namespace CS4455.Utility {
             if(rb.centerOfMass != centerOfMass)
                 rb.centerOfMass = centerOfMass;
         }
-    	
+
+
+
+
+        //void OnDrawGizmosSelected()
+        //{
+        //    // Draw a yellow sphere at the transform's position
+        //    Gizmos.color = Color.yellow;
+        //    Gizmos.matrix = transform.localToWorldMatrix;
+        //    Gizmos.DrawWireSphere(this.centerOfMass, 0.1f);
+        //}
+
 
     }
 
