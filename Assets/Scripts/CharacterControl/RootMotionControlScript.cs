@@ -30,6 +30,7 @@ public class RootMotionControlScript : MonoBehaviour
     public float jumpableGroundNormalMaxAngle = 45f;
     public bool closeToJumpableGround;
 
+
     private int groundContactCount = 0;
 
     public bool IsGrounded
