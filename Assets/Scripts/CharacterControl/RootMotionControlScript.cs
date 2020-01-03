@@ -18,6 +18,14 @@ public class RootMotionControlScript : MonoBehaviour
     private Transform leftFoot;
     private Transform rightFoot;
 
+
+    public GameObject buttonPressStandingSpot;
+    public float buttonCloseEnoughForMatchDistance = 2f;
+    public float buttonCloseEnoughForPressDistance = 0.22f;
+    public float buttonCloseEnoughForPressAngleDegrees = 5f;
+    public float initalMatchTargetsAnimTime = 0.25f;
+    public float exitMatchTargetsAnimTime = 0.75f;
+
     //Useful if you implement jump in the future...
     public float jumpableGroundNormalMaxAngle = 45f;
     public bool closeToJumpableGround;
@@ -66,18 +74,16 @@ public class RootMotionControlScript : MonoBehaviour
 
 
 
-
-
     void Update()
     {
 
         float inputForward=0f;
         float inputTurn=0f;
         bool inputAction = false;
-        // input is polled in the Update() step, not FixedUpdate()
-        // Therefore, you should ONLY use input state that is NOT event-based in FixedUpdate()
-        // Input events should be handled in Update(), and possibly passed on to FixedUpdate() through 
-        // the state of the MonoBehavior
+        bool doButtonPress = false;
+        bool doMatchToButtonPress = false;
+
+
         if (cinput.enabled)
         {
             inputForward = cinput.Forward;
@@ -88,17 +94,56 @@ public class RootMotionControlScript : MonoBehaviour
 
         //onCollisionXXX() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
-        //Therefore, an additional raycast approach is used to check for close ground
+        //Therefore, an additional raycast approach is used to check for close ground.
+        //This is good for allowing player to jump and not be frustrated that the jump button doesn't
+        //work
         bool isGrounded = IsGrounded || CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.1f, 1f, out closeToJumpableGround);
-                                                    
-       
-        anim.SetFloat("velx", inputTurn);	
+
+
+
+        float buttonDistance = float.MaxValue;
+        float buttonAngleDegrees = float.MaxValue;
+
+        if (buttonPressStandingSpot != null)
+        {
+            buttonDistance = Vector3.Distance(transform.position, buttonPressStandingSpot.transform.position);
+            buttonAngleDegrees = Quaternion.Angle(transform.rotation, buttonPressStandingSpot.transform.rotation);
+        }
+
+        if (inputAction)
+        {
+            Debug.Log("Action pressed");
+
+            if (buttonDistance <= buttonCloseEnoughForMatchDistance)
+            {
+                if(buttonDistance <= buttonCloseEnoughForPressDistance &&
+                    buttonAngleDegrees <= buttonCloseEnoughForPressAngleDegrees)
+                {
+                    Debug.Log("Button press initiated");
+
+                    doButtonPress = true;
+                    
+                }
+                else
+                {
+                    // TODO UNCOMMENT THESE LINES FOR TARGET MATCHING
+                    // Debug.Log("match to button initiated");
+                    // doMatchToButtonPress = true;
+                }
+
+            }
+        }
+
+
+        // TODO HANDLE BUTTON MATCH TARGET HERE
+
+
+
+        anim.SetFloat("velx", inputTurn);
         anim.SetFloat("vely", inputForward);
         anim.SetBool("isFalling", !isGrounded);
-        anim.SetBool("doButtonPress", inputAction);
-
-        if(inputAction)
-            Debug.Log("Action pressed");
+        anim.SetBool("doButtonPress", doButtonPress);
+        anim.SetBool("matchToButtonPress", doMatchToButtonPress);
 
     }
 
@@ -157,5 +202,8 @@ public class RootMotionControlScript : MonoBehaviour
         this.transform.rotation = newRootRotation;
 
     }
+
+
+
 
 }

@@ -56,7 +56,7 @@ public class MinionBasicControlScript : MonoBehaviour
     }
 
 
-    void FixedUpdate()
+    void Update()
     {
 
         float inputForward=0f;
