@@ -37,6 +37,7 @@ public class CharacterManager : MonoBehaviour {
         ControllableCharacters[charIndex].enabled = true;
 
         thirdPersonCamera.desiredPose = ControllableCharacters[charIndex].transform.Find(CameraPositionMarkerName);
+        thirdPersonCamera.target = ControllableCharacters[charIndex].transform;
 
         Debug.Log("Character " + ControllableCharacters[charIndex].Name + " was selected.");
    
