@@ -35,6 +35,11 @@ public class CharacterInputController : MonoBehaviour {
         private set;
     }
 
+    public bool Jump
+    {
+        get;
+        private set;
+    }
 
         
 
@@ -97,6 +102,8 @@ public class CharacterInputController : MonoBehaviour {
 
         //Capture "fire" button for action event
         Action = Input.GetButtonDown("Fire1");
+
+        Jump = Input.GetButtonDown("Jump");
 
 	}
 }
