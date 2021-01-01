@@ -8663,7 +8663,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: 34b7f612d50aa426893a744d2d65dcc9, type: 2}
     - target: {fileID: 9500000, guid: 468074b7db6524718a2aab5fdc63acc9, type: 3}
       propertyPath: m_UpdateMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9500000, guid: 468074b7db6524718a2aab5fdc63acc9, type: 3}
       propertyPath: m_ApplyRootMotion
@@ -13513,7 +13513,7 @@ Animator:
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: c020debda1ebf42daac3a2cf294785d4, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 1
+  m_UpdateMode: 0
   m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
@@ -15447,7 +15447,7 @@ Animator:
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 336508f37ce50481e8ea302712bfff40, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 1
+  m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
@@ -17966,7 +17966,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: 3964edee805e94c2ca573fec3b058bbf, type: 2}
     - target: {fileID: 9500000, guid: 468074b7db6524718a2aab5fdc63acc9, type: 3}
       propertyPath: m_UpdateMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 13700006, guid: 468074b7db6524718a2aab5fdc63acc9, type: 3}
       propertyPath: m_Materials.Array.data[0]
