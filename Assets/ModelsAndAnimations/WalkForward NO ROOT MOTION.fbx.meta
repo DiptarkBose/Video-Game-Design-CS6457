@@ -1418,7 +1418,7 @@ ModelImporter:
     second: _1_Edit1_WalkFWD
   - first:
       74: 7400004
-    second: WalkForward
+    second: WalkForward-NoRoot
   - first:
       74: 7400006
     second: WalkOnSpot
@@ -1484,7 +1484,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: WalkForward
+      name: WalkForward-NoRoot
       takeName: _1_Edit1_WalkFWD
       internalID: 0
       firstFrame: 0
