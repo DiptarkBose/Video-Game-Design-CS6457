@@ -21,10 +21,12 @@ public class MinionRootMotionControlScript : MonoBehaviour
         }
     }
 
+    float _inputForward = 0f;
+    float _inputTurn = 0f;
+
     //Useful if you implement jump in the future...
     public float jumpableGroundNormalMaxAngle = 45f;
     public bool closeToJumpableGround;
-
 
     void Awake()
     {
@@ -54,17 +56,17 @@ public class MinionRootMotionControlScript : MonoBehaviour
     }
 
 
-    void Update()
+    private void Update()
     {
-
-        float inputForward=0f;
-        float inputTurn=0f;
-
         if (cinput.enabled)
         {
-            inputForward = cinput.Forward;
-            inputTurn = cinput.Turn;
+            _inputForward = cinput.Forward;
+            _inputTurn = cinput.Turn;
         }
+    }
+
+    void FixedUpdate()
+    {
 
         //onCollisionXXX() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
@@ -72,8 +74,8 @@ public class MinionRootMotionControlScript : MonoBehaviour
         bool isGrounded = IsGrounded || CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.85f, 0f, out closeToJumpableGround);
 
 
-        anim.SetFloat("velx", inputTurn); 
-        anim.SetFloat("vely", inputForward);
+        anim.SetFloat("velx", _inputTurn); 
+        anim.SetFloat("vely", _inputForward);
         anim.SetBool("isFalling", !isGrounded);
     }
 
@@ -125,8 +127,12 @@ public class MinionRootMotionControlScript : MonoBehaviour
 
         //TODO Here, you could scale the difference in position and rotation to make the character go faster or slower
 
-        this.transform.position = newRootPosition;
-        this.transform.rotation = newRootRotation;
+        // old way
+        //this.transform.position = newRootPosition;
+        //this.transform.rotation = newRootRotation;
+
+        rbody.MovePosition(newRootPosition);
+        rbody.MoveRotation(newRootRotation);
 
 
     }

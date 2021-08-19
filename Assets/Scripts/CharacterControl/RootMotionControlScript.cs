@@ -26,6 +26,18 @@ public class RootMotionControlScript : MonoBehaviour
     public float initalMatchTargetsAnimTime = 0.25f;
     public float exitMatchTargetsAnimTime = 0.75f;
 
+
+    // classic input system only polls in Update()
+    // so must treat input events like discrete button presses as
+    // "triggered" until consumed by FixedUpdate()...
+    bool _inputActionFired = false;
+
+    // ...however constant input measures like axes can just have most recent value
+    // cached.
+    float _inputForward = 0f;
+    float _inputTurn = 0f;
+
+
     //Useful if you implement jump in the future...
     public float jumpableGroundNormalMaxAngle = 45f;
     public bool closeToJumpableGround;
@@ -71,27 +83,29 @@ public class RootMotionControlScript : MonoBehaviour
             Debug.Log("One of the feet could not be found");
             
     }
-        
 
 
-
-    void Update()
+    private void Update()
     {
-
-        float inputForward=0f;
-        float inputTurn=0f;
-        bool inputAction = false;
-        bool doButtonPress = false;
-        bool doMatchToButtonPress = false;
-
-
         if (cinput.enabled)
         {
-            inputForward = cinput.Forward;
-            inputTurn = cinput.Turn;
-            inputAction = cinput.Action;
-                
+            _inputForward = cinput.Forward;
+            _inputTurn = cinput.Turn;
+
+            // Note that we don't overwrite a true value already stored
+            // Is only cleared to false in FixedUpdate()
+            // This makes certain that the action is handled!
+            _inputActionFired = _inputActionFired || cinput.Action;
+
         }
+    }
+
+
+    void FixedUpdate()
+    {
+
+        bool doButtonPress = false;
+        bool doMatchToButtonPress = false;
 
         //onCollisionXXX() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
@@ -99,8 +113,6 @@ public class RootMotionControlScript : MonoBehaviour
         //This is good for allowing player to jump and not be frustrated that the jump button doesn't
         //work
         bool isGrounded = IsGrounded || CharacterCommon.CheckGroundNear(this.transform.position, jumpableGroundNormalMaxAngle, 0.1f, 1f, out closeToJumpableGround);
-
-
 
         float buttonDistance = float.MaxValue;
         float buttonAngleDegrees = float.MaxValue;
@@ -111,8 +123,10 @@ public class RootMotionControlScript : MonoBehaviour
             buttonAngleDegrees = Quaternion.Angle(transform.rotation, buttonPressStandingSpot.transform.rotation);
         }
 
-        if (inputAction)
+        if(_inputActionFired)
         {
+            _inputActionFired = false; // clear the input event that came from Update()
+
             Debug.Log("Action pressed");
 
             if (buttonDistance <= buttonCloseEnoughForMatchDistance)
@@ -140,8 +154,8 @@ public class RootMotionControlScript : MonoBehaviour
 
 
 
-        anim.SetFloat("velx", inputTurn);
-        anim.SetFloat("vely", inputForward);
+        anim.SetFloat("velx", _inputTurn);
+        anim.SetFloat("vely", _inputForward);
         anim.SetBool("isFalling", !isGrounded);
         anim.SetBool("doButtonPress", doButtonPress);
         anim.SetBool("matchToButtonPress", doMatchToButtonPress);
@@ -186,7 +200,7 @@ public class RootMotionControlScript : MonoBehaviour
         if (isGrounded)
         {
          	//use root motion as is if on the ground		
-            newRootPosition = anim.rootPosition;
+            newRootPosition = anim.rootPosition;        
         }
         else
         {
@@ -199,9 +213,12 @@ public class RootMotionControlScript : MonoBehaviour
 
         //TODO Here, you could scale the difference in position and rotation to make the character go faster or slower
 
-        this.transform.position = newRootPosition;
-        this.transform.rotation = newRootRotation;
+        // old way
+        //this.transform.position = newRootPosition;
+        //this.transform.rotation = newRootRotation;
 
+        rbody.MovePosition(newRootPosition);
+        rbody.MoveRotation(newRootRotation);
     }
 
 
