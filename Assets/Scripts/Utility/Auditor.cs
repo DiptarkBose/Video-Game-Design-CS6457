@@ -17,7 +17,7 @@ namespace CS4455.Utility
         [SerializeField] private string assignmentCode = "m1";
         [SerializeField] private Text guiText;
         [SerializeField] private string lastName;
-        [SerializeField] private char firstInitial;
+        [SerializeField] private string firstInitial;
 
         private Text text;
 
@@ -28,7 +28,7 @@ namespace CS4455.Utility
 
         // Start is called before the first frame update
         private void Start()
-        {
+        {  
             text.text = GetAudit();
         }
 
@@ -73,12 +73,12 @@ namespace CS4455.Utility
                 bool fieldsMissing = false;
                 if (string.IsNullOrEmpty(lastName))
                 {
-                    auditErrors.Add("• Missing 'Last Name' in Auditor!");
+                    auditErrors.Add($"• Missing 'Last Name' in Auditor!");
                     fieldsMissing = true;
                 }
-                if (firstInitial == default(char))
+                if (string.IsNullOrEmpty(firstInitial))
                 {
-                    auditErrors.Add("• Missing 'First Initial' in Auditor!");
+                    auditErrors.Add($"• Missing 'First Initial' in Auditor!");
                     fieldsMissing = true;
                 }
                 if (fieldsMissing)
@@ -89,7 +89,7 @@ namespace CS4455.Utility
                 // Check for invalid fields incorrectly populated by student
                 bool fieldsInvalid = false;
                 string lastNameValid = char.ToUpper(lastName[0]) + lastName.Substring(1).ToLower();
-                char firstInitialValid = char.ToUpper(firstInitial);
+                var firstInitialValid = firstInitial.ToUpper();
                 if (lastName != lastNameValid)
                 {
                     auditErrors.Add($"• Invalid 'Last Name' ('{lastName}' != '{lastNameValid}') in Auditor!");
