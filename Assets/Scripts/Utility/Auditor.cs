@@ -134,7 +134,20 @@ namespace CS4455.Utility
 
                 string exeName = isOSX ? $"{productNameValid}.app" : $"{productNameValid}.exe";
                 string exePath = $"{appDirectory.FullName}/{exeName}";
-                if (!File.Exists(exePath))
+
+                bool wasErr = false;
+                if (!isOSX)
+                {
+                    if (!File.Exists(exePath))
+                        wasErr = true;
+                }
+                else
+                {
+                    if (!Directory.Exists(exePath))
+                        wasErr = true;
+                }
+
+                if (wasErr)
                 {
                     auditErrors.Add($"• Exe on current platform should be: {exePath}");
                 }
@@ -142,7 +155,21 @@ namespace CS4455.Utility
                 string altExeName = isOSX ? $"{productNameValid}.exe" : $"{productNameValid}.app";
                 string subPath = isOSX ? WINDOWS_DIR : OSX_DIR;
                 string altExePath = $"{buildDirectory.FullName}/{subPath}/{altExeName}";
-                if (!File.Exists(altExePath))
+
+                wasErr = false;
+
+                if (isOSX)
+                {
+                    if (!File.Exists(altExePath))
+                        wasErr = true;
+                }
+                else
+                {
+                    if (!Directory.Exists(altExePath))
+                        wasErr = true;
+                }
+
+                if (wasErr)
                 {
                     auditErrors.Add($"• Exe on alt platform should be: {altExePath}");
                 }
