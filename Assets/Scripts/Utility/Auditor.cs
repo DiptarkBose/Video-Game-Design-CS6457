@@ -32,27 +32,27 @@ namespace CS4455.Utility
             text.text = GetAudit();
         }
 
-        private bool DoesPossiblyHiddenDirectoryExist(string path)
-        {
-            try
-            {
-                if ((new DirectoryInfo(path).Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
-                {
-                    // file is hidden
-                    return true;
-                }
-                else
-                {
-                    // file is not hidden
-                    return true;
-                }
-            }
-            catch (DirectoryNotFoundException)
-            {         // file does not exist
-            }
+        //private bool DoesPossiblyHiddenDirectoryExist(string path)
+        //{
+        //    try
+        //    {
+        //        if ((new DirectoryInfo(path).Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
+        //        {
+        //            // file is hidden
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            // file is not hidden
+        //            return true;
+        //        }
+        //    }
+        //    catch (DirectoryNotFoundException)
+        //    {         // file does not exist
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
 
         private string GetAudit()
@@ -242,9 +242,9 @@ namespace CS4455.Utility
                 if (!Directory.Exists(assetsPath))
                 { auditErrors.Add($"• Did not find Asset folder at expected location '{assetsPath}'!"); }
 
-                string projectSettingsPath = $"{rootDirectory.FullName}/Project Settings";
+                string projectSettingsPath = $"{rootDirectory.FullName}/ProjectSettings";
                 if (!Directory.Exists(projectSettingsPath))
-                { auditErrors.Add($"• Did not find Project Settings folder at expected location '{projectSettingsPath}'!"); }
+                { auditErrors.Add($"• Did not find ProjectSettings folder at expected location '{projectSettingsPath}'!"); }
 
                 string packagesPath = $"{rootDirectory.FullName}/Packages";
                 if (!Directory.Exists(packagesPath))
@@ -254,7 +254,7 @@ namespace CS4455.Utility
                 string gitPath = $"{rootDirectory.FullName}/.git";
 
                 //if (File.Exists(gitPath))
-                if (DoesPossiblyHiddenDirectoryExist(gitPath))
+                if (Directory.Exists(gitPath))
                 { auditErrors.Add($"• Found unneeded .git folder '{gitPath}'!"); }
 
                 string libraryPath = $"{rootDirectory.FullName}/Library";
