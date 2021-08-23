@@ -4574,7 +4574,7 @@ PrefabInstance:
     - target: {fileID: 8717648845110045441, guid: cad54794e0416478ebf40bab225f861e,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.26
+      value: -4.556
       objectReference: {fileID: 0}
     - target: {fileID: 8717648845110045441, guid: cad54794e0416478ebf40bab225f861e,
         type: 3}
@@ -8458,6 +8458,7 @@ MonoBehaviour:
   exitMatchTargetsAnimTime: 0
   jumpableGroundNormalMaxAngle: 45
   closeToJumpableGround: 0
+  buttonObject: {fileID: 0}
 --- !u!114 &966225177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11113,6 +11114,7 @@ MonoBehaviour:
   exitMatchTargetsAnimTime: 0
   jumpableGroundNormalMaxAngle: 45
   closeToJumpableGround: 1
+  buttonObject: {fileID: 1810421759}
 --- !u!136 &1331787735
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -16943,6 +16945,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 57e6787794c864677921523e8f571933, type: 3}
+--- !u!1 &1810421759 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8717648844397121767, guid: cad54794e0416478ebf40bab225f861e,
+    type: 3}
+  m_PrefabInstance: {fileID: 599924519}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1827452580
 PrefabInstance:
   m_ObjectHideFlags: 0
