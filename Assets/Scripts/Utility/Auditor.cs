@@ -18,12 +18,18 @@ namespace CS4455.Utility
         [SerializeField] private Text guiText;
         [SerializeField] private string lastName;
         [SerializeField] private string firstInitial;
+        [SerializeField] private bool disableNameChecks = false;
+
+        [SerializeField] private Text btnText;
 
         private Text text;
+        private Canvas canvas;
 
         private void Awake()
         {
             text = GetComponent<Text>();
+
+            canvas = GetComponentInParent<Canvas>();
         }
 
         // Start is called before the first frame update
@@ -62,52 +68,63 @@ namespace CS4455.Utility
             try
             {
 
-                if (Application.isEditor)
-                {
-                    auditErrors.Add("Audit will not run in Editor.");
+                //if (Application.isEditor)
+                //{
+                //    auditErrors.Add("Audit will not run in Editor.");
 
-                    return CombineAuditError();
-                }
+                //    return CombineAuditError();
+                //}
 
-                // Check for missing fields not populated by student
-                bool fieldsMissing = false;
-                if (string.IsNullOrEmpty(lastName))
-                {
-                    auditErrors.Add($"• Missing 'Last Name' in Auditor!");
-                    fieldsMissing = true;
-                }
-                if (string.IsNullOrEmpty(firstInitial))
-                {
-                    auditErrors.Add($"• Missing 'First Initial' in Auditor!");
-                    fieldsMissing = true;
-                }
-                if (fieldsMissing)
-                {
-                    return CombineAuditError();
-                }
 
-                // Check for invalid fields incorrectly populated by student
-                bool fieldsInvalid = false;
-                string lastNameValid = char.ToUpper(lastName[0]) + lastName.Substring(1).ToLower();
-                var firstInitialValid = firstInitial.ToUpper();
-                if (lastName != lastNameValid)
-                {
-                    auditErrors.Add($"• Invalid 'Last Name' ('{lastName}' != '{lastNameValid}') in Auditor!");
-                    fieldsInvalid = true;
-                }
-                if (firstInitial != firstInitialValid)
-                {
-                    auditErrors.Add($"• Invalid 'First Initial' ('{firstInitial}' != '{firstInitialValid}') in Auditor!");
-                    fieldsInvalid = true;
-                }
-                if (fieldsInvalid) { return CombineAuditError(); }
+                // lastNameValid allowed to have other capitalized letters for complex names
+                string lastNameValid = "";
+                var firstInitialValid = "";
 
-                if (guiText != null)
+                if (!disableNameChecks)
                 {
-                    if (guiText.text.Contains("George P. Burdell") ||
-                        !guiText.text.ToLower().Contains(lastNameValid.ToLower()))
+                    // Check for missing fields not populated by student
+                    bool fieldsMissing = false;
+                    if (string.IsNullOrEmpty(lastName))
                     {
-                        auditErrors.Add($"• GUI Text name has not been set correctly. Must contain provided last name. Currently: {guiText.text}");
+                        auditErrors.Add($"• Missing 'Last Name' in Auditor Inspector settings!");
+                        fieldsMissing = true;
+                    }
+                    if (string.IsNullOrEmpty(firstInitial))
+                    {
+                        auditErrors.Add($"• Missing 'First Initial' in Auditor Inspector settings!");
+                        fieldsMissing = true;
+                    }
+                    if (fieldsMissing)
+                    {
+                        return CombineAuditError();
+                    }
+
+                    // Check for invalid fields incorrectly populated by student
+                    bool fieldsInvalid = false;
+
+                    // lastNameValid allowed to have other capitalized letters for complex names
+                    lastNameValid = char.ToUpper(lastName[0]) + lastName.Substring(1);
+                    firstInitialValid = firstInitial.ToUpper();
+
+                    if (lastName != lastNameValid)
+                    {
+                        auditErrors.Add($"• Invalid 'Last Name' ('{lastName}' != '{lastNameValid}') in Auditor!");
+                        fieldsInvalid = true;
+                    }
+                    if (firstInitial != firstInitialValid)
+                    {
+                        auditErrors.Add($"• Invalid 'First Initial' ('{firstInitial}' != '{firstInitialValid}') in Auditor!");
+                        fieldsInvalid = true;
+                    }
+                    if (fieldsInvalid) { return CombineAuditError(); }
+
+                    if (guiText != null)
+                    {
+                        if (guiText.text.Contains("George P. Burdell") ||
+                            !guiText.text.ToLower().Contains(lastNameValid.ToLower()))
+                        {
+                            auditErrors.Add($"• GUI Text name has not been set correctly. Must contain provided last name. Currently: {guiText.text}");
+                        }
                     }
                 }
 
@@ -116,7 +133,7 @@ namespace CS4455.Utility
                 string productNameValid = $"{lastNameValid}_{firstInitialValid}_{assignmentCode}";
                 if (productName != productNameValid)
                 {
-                    auditErrors.Add($"• Invalid Product Name ('{productName}' != '{productNameValid}')!");
+                    auditErrors.Add($"• Invalid Product Name ('{productName}' != '{productNameValid}') in prjSettings:Player!");
                 }
 
                 bool isOSX = Application.platform == RuntimePlatform.OSXPlayer;
@@ -174,8 +191,11 @@ namespace CS4455.Utility
                     auditErrors.Add($"• Exe on alt platform should be: {altExePath}");
                 }
 
-                bool untested1 = File.Exists($"{appDirectory.FullName}/UNTESTED");
-                bool untested2 = File.Exists($"{buildDirectory.FullName}/{subPath}/UNTESTED");
+                //bool untested1 = File.Exists($"{appDirectory.FullName}/UNTESTED");
+                //bool untested2 = File.Exists($"{buildDirectory.FullName}/{subPath}/UNTESTED");
+
+                bool untested1 = WildcardFileExists($"{appDirectory.FullName}/", "UNTESTED*");
+                bool untested2 = WildcardFileExists($"{appDirectory.FullName}/{subPath}/", "UNTESTED*");
 
                 int untestedCount = (untested1 ? 1 : 0) + (untested2 ? 1 : 0);
 
@@ -299,9 +319,10 @@ namespace CS4455.Utility
                 return CombineAuditError();
 
             }
-            catch(Exception)
+            catch(Exception e)
             {
                 auditErrors.Add("Unknown error occured during audit!");
+                auditErrors.Add(e.ToString());
                 return CombineAuditError();
             }
 
@@ -317,5 +338,39 @@ namespace CS4455.Utility
                 default: return $"Invalid Platform: '{Application.platform}'";
             }
         }
+
+        // use * as wildcard. ? may work as well.
+        private bool WildcardFileExists(string dir, string fnPtrn)
+        {
+            string[] files = Directory.GetFiles(dir, fnPtrn, System.IO.SearchOption.TopDirectoryOnly);
+
+            return files.Length > 0;
+
+        }
+
+
+
+        private void Update()
+        {
+            if( (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
+                Input.GetKeyDown(KeyCode.O) )
+            {
+                ToggleAuditDisplay();
+            }
+        }
+
+
+        public void ToggleAuditDisplay()
+        {
+            //canvas.enabled = !canvas.enabled;
+            text.enabled = !text.enabled;
+
+            if(btnText != null)
+            {
+                var bit = text.enabled ? "Hide" : "Show";
+                btnText.text = bit + " Audit";
+            }
+        }
+
     }
 }
