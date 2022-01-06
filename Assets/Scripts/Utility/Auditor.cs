@@ -195,11 +195,11 @@ namespace CS4455.Utility
                 //bool untested2 = File.Exists($"{buildDirectory.FullName}/{subPath}/UNTESTED");
 
                 bool untested1 = WildcardFileExists($"{appDirectory.FullName}/", "UNTESTED*");
-                bool untested2 = WildcardFileExists($"{appDirectory.FullName}/{subPath}/", "UNTESTED*");
+                bool untested2 = WildcardFileExists($"{buildDirectory.FullName}/{subPath}/", "UNTESTED*");
 
                 int untestedCount = (untested1 ? 1 : 0) + (untested2 ? 1 : 0);
 
-                if(untestedCount != 1)
+                if (untestedCount != 1)
                 {
                     auditErrors.Add($"Found UNTESTED file {untestedCount} times. But expected one. Preferred build should not have UNTESTED file");
                 }
@@ -316,6 +316,15 @@ namespace CS4455.Utility
                 //    { }
                 //}
 
+                if (auditErrors.Count <= 0)
+                { 
+                    auditErrors.Add("No major issues found, but make sure");
+                    auditErrors.Add("to fill out descriptive readme and");
+                    auditErrors.Add("clear out any major clutter in root dir");
+                    auditErrors.Add("such as mistargeted build.");
+                }
+
+
                 return CombineAuditError();
 
             }
@@ -342,7 +351,13 @@ namespace CS4455.Utility
         // use * as wildcard. ? may work as well.
         private bool WildcardFileExists(string dir, string fnPtrn)
         {
-            string[] files = Directory.GetFiles(dir, fnPtrn, System.IO.SearchOption.TopDirectoryOnly);
+            string[] files = new string[0];
+            try
+            {
+                files = Directory.GetFiles(dir, fnPtrn, System.IO.SearchOption.TopDirectoryOnly);
+            }
+            catch (Exception)
+            { }
 
             return files.Length > 0;
 
