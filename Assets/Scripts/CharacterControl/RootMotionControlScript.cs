@@ -25,6 +25,8 @@ public class RootMotionControlScript : MonoBehaviour
     public float buttonCloseEnoughForPressAngleDegrees = 5f;
     public float initalMatchTargetsAnimTime = 0.25f;
     public float exitMatchTargetsAnimTime = 0.75f;
+    public float animationSpeed = 1f, rootMovementSpeed = 1f, rootTurnSpeed = 1f;
+    public GameObject buttonObject;
 
 
     // classic input system only polls in Update()
@@ -107,6 +109,7 @@ public class RootMotionControlScript : MonoBehaviour
         bool doButtonPress = false;
         bool doMatchToButtonPress = false;
 
+        anim.speed = animationSpeed;
         //onCollisionXXX() doesn't always work for checking if the character is grounded from a playability perspective
         //Uneven terrain can cause the player to become technically airborne, but so close the player thinks they're touching ground.
         //Therefore, an additional raycast approach is used to check for close ground.
@@ -142,8 +145,8 @@ public class RootMotionControlScript : MonoBehaviour
                 else
                 {
                     // TODO UNCOMMENT THESE LINES FOR TARGET MATCHING
-                    // Debug.Log("match to button initiated");
-                    // doMatchToButtonPress = true;
+                    Debug.Log("match to button initiated");
+                    doMatchToButtonPress = true;
                 }
 
             }
@@ -151,8 +154,18 @@ public class RootMotionControlScript : MonoBehaviour
 
 
         // TODO HANDLE BUTTON MATCH TARGET HERE
+        var animState = anim.GetCurrentAnimatorStateInfo(0);
 
-
+        if(animState.IsName("MatchToButtonPress") && !anim.IsInTransition(0) && !anim.isMatchingTarget)
+        {
+            if(buttonPressStandingSpot != null)
+            {
+                Debug.Log("Target Matching Correction Started");
+                initalMatchTargetsAnimTime = animState.normalizedTime;
+                var t = buttonPressStandingSpot.transform;
+                anim.MatchTarget(t.position, t.rotation, AvatarTarget.Root, new MatchTargetWeightMask(new Vector3(1f, 0f, 1f), 1f), initalMatchTargetsAnimTime, exitMatchTargetsAnimTime);
+            }
+        }
 
         anim.SetFloat("velx", _inputTurn);
         anim.SetFloat("vely", _inputForward);
@@ -189,6 +202,30 @@ public class RootMotionControlScript : MonoBehaviour
 
     }
 
+    private void OnAnimatorIK(int layerIndex)
+    {
+        if(anim)
+        {
+            AnimatorStateInfo astate = anim.GetCurrentAnimatorStateInfo(0);
+            if (astate.IsName("ButtonPress"))
+            {
+                float buttonWeight = anim.GetFloat("buttonClose");
+                if(buttonObject != null)
+                {
+                    anim.SetLookAtWeight(buttonWeight);
+                    anim.SetLookAtPosition(buttonObject.transform.position);
+                    anim.SetIKPositionWeight(AvatarIKGoal.RightHand, buttonWeight);
+                    anim.SetIKPosition(AvatarIKGoal.RightHand, buttonObject.transform.position);
+                }
+            }
+            else
+            {
+                anim.SetIKPositionWeight(AvatarIKGoal.RightHand, 0);
+                anim.SetLookAtWeight(0);
+            }
+        }
+    }
+
     void OnAnimatorMove()
     {
 
@@ -212,6 +249,7 @@ public class RootMotionControlScript : MonoBehaviour
         newRootRotation = anim.rootRotation;
 
         //TODO Here, you could scale the difference in position and rotation to make the character go faster or slower
+        newRootPosition = Vector3.LerpUnclamped(this.transform.position, newRootPosition, rootMovementSpeed);
 
         // old way
         //this.transform.position = newRootPosition;

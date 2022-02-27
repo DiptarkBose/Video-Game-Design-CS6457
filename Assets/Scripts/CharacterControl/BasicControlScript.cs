@@ -98,7 +98,7 @@ public class BasicControlScript : MonoBehaviour
         rbody.MoveRotation(rbody.rotation * Quaternion.AngleAxis(inputTurn * Time.deltaTime * turnMaxSpeed, Vector3.up));
 
 
-        anim.SetFloat("velx", inputTurn); 
+        //anim.SetFloat("velx", inputTurn);     // disabling this to stop sending rotation input to animator.
         anim.SetFloat("vely", inputForward);
         anim.SetBool("isFalling", !isGrounded);
 
